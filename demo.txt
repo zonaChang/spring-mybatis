@@ -1,3 +1,4 @@
 just test
 has added and change context : add current 
-test git diff
+test git diff xxxxxxxxxx
+add new line 
