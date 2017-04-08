@@ -3,3 +3,4 @@ has added and change context : add current
 test git diff
 desk modify
 on desk modify in order to test git add/git commit -a
+add new file test.txt, but not add before push me
