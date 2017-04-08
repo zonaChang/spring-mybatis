@@ -1,0 +1,11 @@
+1. 如果使用了aop做代理：
+	因为UserServiceImpl实现了UserService接口，所以spring会使用jdk的动态代理，
+	此时将获取的bean强转换为UserServiceImpl会报类解析异常， jdk动态代理， 返回的是接口的代理对象，所以不能强制转换为实现类
+2. 如果不使用aop代理，则可以直接使用实现类接收
+	@Before
+	public void Init() {
+		ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+		UserServiceImpl userService = (UserServiceImpl) context.getBean("userServiceImpl");
+	}
+	
+	

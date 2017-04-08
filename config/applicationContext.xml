@@ -1,0 +1,181 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+
+	<context:component-scan base-package="com.changez.sm" />
+
+    <!-- 加载数据库属性文件 -->
+    <context:property-placeholder location="classpath:jdbc.properties, classpath:external.properties"/>
+    
+    <!-- validated 校验配置start -->
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" >
+    	<!-- 提供检验机制的类： 此处用的而是Hibernate校验器，但是跟Hibernate没有关系 -->
+    	<property name="providerClass" value="org.hibernate.validator.HibernateValidator" />
+    	<!-- 指定校验的使用的资源文件, 如果不需要额外的错误配置文件，就不用配置该属性，
+    	 在配置文件中配置k-v的错误提示信息，如果不指定则使用默认配置：classpath下的ValidationMessages.properties -->
+    	<property name="validationMessageSource" ref="messoreSources" />
+    </bean>
+    <!-- 额外错误信息文件配置 -->
+    <bean id="messoreSources" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+<!--     	错误信息资源文件， 不需要写后缀， 默认后缀为.properties -->
+    	<property name="basenames">
+    		<list>
+    			<value>classpath:testErrMessages</value>
+    		</list>
+    	</property>
+<!--     	错误信息文件编码方式 -->
+    	<property name="fileEncodings" value="utf-8" />
+<!--     	错误信息文件缓存时间 -->
+    	<property name="cacheSeconds" value="120" />
+    </bean>
+    <!-- validated 校验配置end  -->
+    
+    
+    <!-- 注解驱动,替换处理器映射器、处理器适配器. 如果使用到校验器需要配置validator属性 -->
+    <mvc:annotation-driven validator="validator"  />
+
+
+    <!-- test start -->
+      <!--  v4.2
+      
+      <bean  
+        class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">  
+    </bean> 
+    <bean  class=" org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">  
+        自定义返回值拦截  
+        <property name="responseBodyAdvice">  
+            <list>  
+                <bean class="com.cml.mvc.base.MyResponseBodyAdvice"></bean>  
+            </list>  
+        </property>  
+        自定义返回值校验  
+        <property name="customReturnValueHandlers">  
+            <list>  
+                <bean class="com.cml.mvc.base.MyReturnValues"></bean>  
+            </list>  
+        </property>  
+          
+    </bean>   -->
+    <!-- test end -->
+    
+    
+    
+<!--     	自定义参数绑定
+	<bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		转换器
+		<property name="converters">
+			<list>
+				日期类型转换
+				<bean class="cn.itcast.ssm.controller.converter.CustomDateConverter"/>
+			</list>
+		</property>
+	</bean> -->
+	
+    <!-- 视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	<!-- 释放静态资源 -->
+	<mvc:resources location="/sources/" mapping="/sources/**"/>
+	<mvc:resources location="/" mapping="/*.html"/>
+	
+	<!-- 拦截器 -->
+<!-- 	<mvc:interceptors>
+		mvc:interceptors根目录下定义的拦截器对每个请求都生效
+		<bean id="timeInterceptor" class="com.changez.sm.interceptor.TimeInterceptor" />
+		<mvc:interceptor>
+			拦截指定的访问路径
+			<mvc:mapping path="/test/data/*"/>
+			<bean id="loginInterceptor" class="com.changez.sm.interceptor.LoginInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors> -->
+	
+    <!-- 定义数据源 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"  
+      destroy-method="close">  
+      <property name="driverClassName" value="${jdbc.driver}" />  
+      <property name="url" value="${jdbc.url}" />  
+      <property name="username" value="${jdbc.username}" />  
+      <property name="password" value="${jdbc.password}" />  
+      <!-- 初始化连接大小 -->  
+      <property name="initialSize" value="${jdbc.initialSize}"></property>  
+      <!-- 连接池最大数量 -->  
+      <property name="maxActive" value="${jdbc.maxActive}"></property>  
+      <!-- 连接池最大空闲 -->  
+      <property name="maxIdle" value="${jdbc.maxIdle}"></property>  
+      <!-- 连接池最小空闲 -->  
+      <property name="minIdle" value="${jdbc.minIdle}"></property>  
+      <!-- 获取连接最大等待时间 -->  
+      <property name="maxWait" value="${jdbc.maxWait}"></property>  
+    </bean> 
+    
+    <!-- mybatis操作数据库的sqlSessinFactory的装配 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 加载mybatis的配置文件 -->
+		<property name="configLocation" value="classpath:sqlMapConfig.xml" />
+		<!-- 数据源 -->
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+    
+    <!-- mybatis的mapper.xml文件扫描加载, 同时将mapper接口纳入spring容器中，bean的name为首字母小写接口名 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- 指定扫描的包名  如果扫描多个包，每个包中间使用半角逗号分隔 -->
+		<property name="basePackage" value="com.changez.sm.mapper"/>
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+	</bean>
+	
+	<!-- 事务注解驱动, 使用aop方式， 所以不需要 -->
+	<!-- <tx:annotation-driven /> -->
+	
+	<!-- 事务管理器  -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<!-- 通知 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 传播行为  -->
+			<tx:method name="save*" propagation="REQUIRED"/>
+			<tx:method name="delete*" propagation="REQUIRED"/>
+			<tx:method name="insert*" propagation="REQUIRED"/>
+			<tx:method name="update*" propagation="REQUIRED"/>
+			<tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
+			<tx:method name="get*" propagation="SUPPORTS" read-only="true"/>
+			<tx:method name="select*" propagation="SUPPORTS" read-only="true"/>
+			<tx:method name="query*" propagation="SUPPORTS" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- aop -->
+	<aop:config>
+		<aop:advisor advice-ref="txAdvice" pointcut="execution(* com.changez.sm.service.impl.*.*(..))"/>
+	</aop:config>
+	
+	<!-- 其他配置  -->
+	
+	<!-- 文件上传 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 设置上传文件的最大尺寸为50MB, 单位为byte -->
+		<property name="maxUploadSize">
+			<value>52428800</value>
+		</property>
+	</bean>
+</beans>

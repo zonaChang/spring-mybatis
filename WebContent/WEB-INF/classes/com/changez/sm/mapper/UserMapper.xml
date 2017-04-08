@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+   
+<mapper namespace="com.changez.sm.mapper.UserMapper">  
+	<select id="getUserById" parameterType="string" resultType="user">
+		select * from temp_changez_user t where t.id=#{id} 
+	</select>
+	
+	<select id="getAllUser" resultType="user">
+		select * from temp_changez_user
+	</select>
+	<insert id="addUser" parameterType="user" >
+		<!-- keyProperty: 将序列号设置到user对象中，且在controller中可以使用  -->
+		<selectKey keyProperty="id" order="BEFORE" resultType="string">
+			SELECT seq_changez_user.nextval id from dual
+		</selectKey>
+		insert into temp_changez_user (id, username) values(#{id}, #{username})
+	</insert>
+	
+	<resultMap type="com.changez.sm.base.bean.User" id="queryUserAndItemsResultMap">
+		<id column="userid" property="id"/>
+		<result column="username" property="username"/>
+		<result column="birthday" property="birthday"/>
+		<collection property="orders" ofType="com.changez.sm.base.bean.Orders">
+			<id column="ordersid" property="id"/>
+			<result column="order_num" property="orderNum"/>
+			<result column="create_time" property="createTime"/>
+			<collection property="ordertails" ofType="com.changez.sm.base.bean.Ordertail">
+				<id column="ordertailid" property="id"/>
+				<result column="item_id" property="itemId"/>
+				<result column="item_num" property="itemNum"/>
+				<association property="items" javaType="com.changez.sm.base.bean.Items">
+					<id column="itemsid" property="id"/>
+					<result column="name" property="name"/>
+					<result column="price" property="price"/>
+					<result column="detail" property="detail"/>
+				</association>
+			</collection>
+		</collection>
+	</resultMap>
+	<!-- 多对多 -->
+	<select id="queryUserAndItems" resultMap="queryUserAndItemsResultMap">
+		SELECT  
+		    tuser.id userid, tuser.username, tuser.birthday, 
+		    torder.id ordersid, torder.order_num, torder.create_time, 
+		    tdetail.id ordertailid, tdetail.item_id, tdetail.item_num,
+		    titems.id itemsid, titems.name, titems.price, titems.detail, titems.pic, titems.createtime
+		from 
+		      temp_changez_user tuser, temp_changez_orders torder, temp_changez_ordertail tdetail, temp_changez_items titems
+		WHERE 
+		      tuser.id=torder.user_id AND torder.id=tdetail.order_id AND tdetail.item_id=titems.id
+	</select>
+</mapper> 

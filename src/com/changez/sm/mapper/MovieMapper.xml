@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+   
+<mapper namespace="com.changez.sm.mapper.MovieMapper">  
+	<select id="queryMovieList" parameterType="int" resultType="movie">
+		<![CDATA[
+			select * from (select ti.*, rownum rn from t_movie ti where rownum < #{1} and ti.type=#{2}) t where t.rn >= #{0}
+		]]>
+	</select>
+	<select id="queryMovieCountByType" parameterType="int" resultType="int">
+		select count(1) from t_movie t where t.type = #{type}
+	</select>
+	
+	<select id="queryMovieDetailById" parameterType="int" resultType="movie">
+		select * from t_movie t where t.id = #{id}
+	</select>
+</mapper> 

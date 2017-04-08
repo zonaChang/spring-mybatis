@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+   
+<mapper namespace="com.changez.sm.mapper.OrdersMapper">  
+	
+	<!-- 封装order及其属性user -->
+	<!-- 关联查询有相同的列明时： column属性不能使用表别名.字段名的方式， 可以在sql中指定列的别名 -->
+	<resultMap type="com.changez.sm.base.bean.Orders" id="queryOrderAndUserResultMap">
+		<id column="ordersid" property="id"/>
+		<result column="user_id" property="userId"/>
+		<result column="order_num" property="orderNum"/>
+		<result column="create_time" property="createTime"/>
+		<result column="note" property="note"/>
+		
+		<association property="user" javaType="com.changez.sm.base.bean.User">
+			<id column="userid" property="id"/>
+			<result column="username" property="username"/>
+			<result column="birthday" property="birthday"/>
+			<result column="address" property="address"/>
+			<result column="sex" property="sex"/>
+		</association>
+	</resultMap>
+	
+	<!-- 使用extends -->
+	<resultMap type="com.changez.sm.base.bean.Orders" id="queryOrderAndDetailResultMapExtends" extends="queryOrderAndUserResultMap">
+		<collection property="ordertails" ofType="com.changez.sm.base.bean.Ordertail">
+			<id column="ordertailid" property="id"/>
+			<result column="order_id" property="orderId"/>
+			<result column="item_id" property="itemId"/>
+			<result column="item_num" property="itemNum"/>
+		</collection>
+	</resultMap>
+	
+	<resultMap type="com.changez.sm.base.bean.Orders" id="queryOrderAndDetailResultMap">
+		<id column="ordersid" property="id"/>
+		<result column="user_id" property="userId"/>
+		<result column="order_num" property="orderNum"/>
+		<result column="create_time" property="createTime"/>
+		<result column="note" property="note"/>
+		
+		<association property="user" javaType="com.changez.sm.base.bean.User">
+			<id column="userid" property="id"/>
+			<result column="username" property="username"/>
+			<result column="birthday" property="birthday"/>
+			<result column="address" property="address"/>
+			<result column="sex" property="sex"/>
+		</association>
+		
+		<collection property="ordertails" ofType="com.changez.sm.base.bean.Ordertail">
+			<id column="ordertailid" property="id"/>
+			<result column="order_id" property="orderId"/>
+			<result column="item_id" property="itemId"/>
+			<result column="item_num" property="itemNum"/>
+		</collection>
+	</resultMap>
+	<!-- 一对一查询 -->
+	<select id="queryOrderAndUser" resultMap="queryOrderAndUserResultMap">
+		<!-- 关联查询时，若有重复的列名， 最好给列名取别名 -->
+		SELECT 
+			tco.id ordersid, tco.user_id, tco.order_num, tco.create_time, 
+			tcu.id userid, tcu.username, tcu.birthday, tcu.sex, tcu.address 
+		from 
+			temp_changez_orders tco,  temp_changez_user tcu 
+		WHERE 
+			tco.user_id=tcu.id
+	</select>
+	
+	<!-- 一对多查询 :查询订单及订单明细的信息 -->
+	<select id="queryOrderAndDetail" resultMap="queryOrderAndDetailResultMap">
+		SELECT 
+			tco.id ordersid, tco.user_id, tco.order_num, tco.create_time, 
+			tcd.id ordertailid, tcd.order_id, tcd.item_id, tcd.item_num, 
+			tcu.id userid, tcu.username, tcu.birthday, tcu.sex, tcu.address 
+		from 
+			temp_changez_orders tco, temp_changez_ordertail tcd, temp_changez_user tcu 
+		WHERE 
+			tco.id=tcd.order_id AND tco.user_id=tcu.id
+	</select>
+	
+<!-- 	<resultMap type="com.changez.sm.base.bean.Orders" id="lazyQueryOrderAndUser">
+		<id column="id" property="id"/>
+		<result column="user_id" property="userId"/>
+		<result column="order_num" property="orderNum"/>
+		<result column="create_time" property="createTime"/>
+		<association property="user" javaType="com.changez.sm.base.bean.User" 
+		column="user_id"
+		select="com.changez.sm.mapper.UserMapper.getUserById">
+			
+		</association>
+		
+	</resultMap>
+	查询订单信息时， 懒加载查询用户信息
+	<select id="queryOrderAndUserLoading" resultMap="lazyQueryOrderAndUser">
+		SELECT t.* from temp_changez_orders t  where t.id=3
+	</select> -->
+</mapper> 
