@@ -2,3 +2,4 @@ just test
 has added and change context : add current 
 test git diff
 desk modify
+on desk modify in order to test git add/git commit -a
