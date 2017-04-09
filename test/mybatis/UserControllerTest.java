@@ -30,6 +30,13 @@ public class UserControllerTest {
 		System.out.println(userController.getUserById("1"));;
 //		System.out.println(userController.getAllUser());
 	}
+
+	@Test
+	public void modify(){
+		int a = 0;
+		System.out.println(a+"workspace change place 1, user controller");
+	}
+
 	@Test
 	public void queryUserAndItems() {
 		UserController userController = (UserController) applicationContext.getBean("userController");
@@ -37,6 +44,11 @@ public class UserControllerTest {
 		System.out.println(a);
 	}
 	
+	@Test
+	public void update(){
+		int a = 0;
+		System.out.println(a+"workspace change place 2, user controller");
+	}
 	@Test
 	public void addUser() {
 		UserController userController = (UserController) applicationContext.getBean("userController");

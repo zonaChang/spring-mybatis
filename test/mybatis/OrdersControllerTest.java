@@ -25,7 +25,11 @@ public class OrdersControllerTest {
 		applicationContext = new ClassPathXmlApplicationContext("applicationContext.xml");
 
 	}
-
+	@Test
+	public void modify(){
+		int a = 0;
+		System.out.println(a+"workspace change place 1, user controller");
+	}
 	@Test
 	public void testGetUserById() {
 		OrdersController ordersController = (OrdersController) applicationContext.getBean("ordersController");
@@ -33,7 +37,11 @@ public class OrdersControllerTest {
 		List<Orders> list = ordersController.queryOrderAndDetail();
 		System.out.println(list);
 	}
-	
+	@Test
+	public void update(){
+		int a = 0;
+		System.out.println(a+"workspace change place 2, user controller");
+	}	
 	@Test
 	public void lazyLoading() {
 		OrdersController ordersController = (OrdersController) applicationContext.getBean("ordersController");
